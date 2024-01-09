@@ -1,3 +1,6 @@
+const CopyPlugin = require("copy-webpack-plugin");
+const path = require("path");
+
 module.exports = {
     resolve: {
         extensions: [".ts", ".js"],
@@ -15,10 +18,10 @@ module.exports = {
         ],
     },
     plugins: [
-        new CopyPlugin({
+        /*new CopyPlugin({
             patterns: [
-                {from: "src/assets/", to: "public/assets/"}
+                {from: path.resolve(__dirname, "src/assets"), to: path.resolve(__dirname, "public/assets")}
             ]
-        })
+        })*/ //uncomment if we add assets
     ]
 };
