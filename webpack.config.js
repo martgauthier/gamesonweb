@@ -15,7 +15,7 @@ module.exports = {
                 loader: "ts-loader",
             },
             {
-                test: /\.glb$/,
+                test: /\.(glb|babylon)$/,
                 type: "asset/resource"
             },
         ],
