@@ -3,5 +3,14 @@
     "module": "esNext",
     "target": "es5",
     "moduleResolution": "node",
-  }
+  },
+  "include": [
+    "src",
+    "src/moduledeclaration.d.ts"
+  ],
+  "types": [
+    "babylonjs",
+    "babylonjs-loaders",
+    ""
+  ]
 }

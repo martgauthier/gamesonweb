@@ -1,4 +1,3 @@
-const CopyPlugin = require("copy-webpack-plugin");
 const path = require("path");
 
 module.exports = {
@@ -15,13 +14,10 @@ module.exports = {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
             },
+            {
+                test: /\.glb$/,
+                type: "asset/resource"
+            },
         ],
-    },
-    plugins: [
-        /*new CopyPlugin({
-            patterns: [
-                {from: path.resolve(__dirname, "src/assets"), to: path.resolve(__dirname, "public/assets")}
-            ]
-        })*/ //uncomment if we add assets
-    ]
+    }
 };
