@@ -8,6 +8,8 @@ import { Scene } from '@babylonjs/core/scene';
 
 import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
 
+import "babylonjs-loaders";
+
 // Get the canvas element from the DOM.
 const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
 
