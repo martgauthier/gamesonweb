@@ -10,13 +10,10 @@ import {v3} from "./utils/shortcuts";
 import {startEngine, startScene} from "./utils/sceneutilities";
 import {
     Animation,
-    AnimationRange, AssetContainer,
-    ISceneLoaderAsyncResult,
+    AssetContainer,
     Mesh,
     MeshBuilder,
-    Quaternion,
     SceneLoader,
-    Space,
     UniversalCamera,
     Vector3
 } from "@babylonjs/core";
@@ -24,7 +21,7 @@ import {
 import RunningGuy from "./RunningGuy";
 
 
-Animation.AllowMatricesInterpolation = true;
+Animation.AllowMatricesInterpolation = true;//permet de fluidifier les animations. Si false, le personnage ne suivrait QUE les clés de mouvement, sans fluidité entre les clés
 
 const [canvas, engine] = startEngine();
 let scene = startScene(engine);
@@ -44,43 +41,32 @@ let ground = MeshBuilder.CreateGround("ground", {
 SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
 
 
-function onDudeMeshLoaded(container: AssetContainer): void {
-    let entries = container.instantiateModelsToScene();
-    let mainMesh = entries.rootNodes[0] as Mesh;
-    //container.instantiateModelsToScene();
-    /*let mainDude=new RunningGuy();*/
+function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
+    //container.instantiateModelsToScene() instancie dans la scène le contenu du container, et renvoye les "entries" (voir "RunningGuy.entries") créés par l'instanciation.
+    //Puisque le dudeModelDataContainer contient les entries du modèle 3D du bonhomme,
+    //On peut considérer que "container.instantiateModelsToScene" renvoye UN CLONE du personnage
 
-    mainMesh.rotate(v3(0,1,0), Math.PI/2);
-    mainMesh.bakeCurrentTransformIntoVertices(true);
+    let mainEntries = dudeModelDataContainer.instantiateModelsToScene();
+    let mainMesh = mainEntries.rootNodes[0] as Mesh;
 
+    let dudes: RunningGuy[]=[new RunningGuy(mainEntries, scene)];
 
-    /*mainMesh.rotate(Vector3.Up(), 3*Math.PI/2);
-    mainMesh.scaling.scaleInPlace(RunningGuy.DEFAULT_SCALE_FACTOR);
-    mainMesh.position=v3(0, 0, -2*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS);
-
-
-    let dudes: RunningGuy[]=[mainDude];
+    mainMesh.position.z=-2*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
 
     for(let i=1; i < 5; i++) {
-        dudes[i]=new RunningGuy(mainMesh.clone(i.toString()+"_runner"));
-        dudes[i].mesh.position.z=mainMesh.position.z+i*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
-        dudes[i].mesh.skeleton=mainDude.mesh.skeleton.clone(i.toString()+"_runnerSkeleton");
+        dudes[i]=new RunningGuy(dudeModelDataContainer.instantiateModelsToScene(), scene);
+
+        dudes[i].getMesh().position.z=mainMesh.position.z+i*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
     }
 
-    let runRange: AnimationRange = result.skeletons[0].getAnimationRange("YBot_Run");
-
-    let skeletonAnimation=scene.beginAnimation(dudes[1].mesh.skeleton, runRange.from, runRange.to, true, 1);
-
     setTimeout(() => {
-        console.log(dudes[0].speed);
-        dudes[0].slowCharacter(0.01);
-        skeletonAnimation.speedRatio=(dudes[0].speed/RunningGuy.DEFAULT_SPEED);
-        console.log(dudes[0].speed);
+        dudes[0].changeAnimSpeed(2, "divide");
     }, 2000);
 
-    scene.onBeforeRenderObservable.add(() => {
+
+    scene.onBeforeRenderObservable.add(() => {//avant chaque rendu de frame (donc avant chaque frame)
         dudes.forEach((dude: RunningGuy) => {
-            dude.mesh.movePOV(0, 0, dude.speed);
+            dude.getMesh().movePOV(0, 0, dude.speed);//la fonction movePOV déplace le personnage PAR RAPPORT à son point de vue (voir doc de la fonction)
         });
-    });*/
+    });
 }
