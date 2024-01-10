@@ -69,4 +69,14 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
             dude.getMesh().movePOV(0, 0, dude.speed);//la fonction movePOV déplace le personnage PAR RAPPORT à son point de vue (voir doc de la fonction)
         });
     });
+
+
+    const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
+
+    function resetModelPositions(): void {
+
+    dudes.forEach((dude: RunningGuy) => {
+        dude.getMesh().position = v3(0, dude.getMesh().position.y,dude.getMesh().position.z);
+    });
+    }
 }
