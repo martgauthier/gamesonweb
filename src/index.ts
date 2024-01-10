@@ -10,7 +10,7 @@ import {v3} from "./utils/shortcuts";
 import {startEngine, startScene} from "./utils/sceneutilities";
 import {
     Animation,
-    AnimationRange,
+    AnimationRange, AssetContainer,
     ISceneLoaderAsyncResult,
     Mesh,
     MeshBuilder,
@@ -41,18 +41,20 @@ let ground = MeshBuilder.CreateGround("ground", {
     height: 8
 });
 
-SceneLoader.ImportMeshAsync("", "", RunningGuy.MODEL_SRC, scene).then((result) => onDudeMeshLoaded(result));
+SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
 
 
-function onDudeMeshLoaded(result: ISceneLoaderAsyncResult): void {
-    let mainMesh: Mesh= result.meshes[1] as Mesh;
-    let mainDude=new RunningGuy(mainMesh);
+function onDudeMeshLoaded(container: AssetContainer): void {
+    let entries = container.instantiateModelsToScene();
+    let mainMesh = entries.rootNodes[0] as Mesh;
+    //container.instantiateModelsToScene();
+    /*let mainDude=new RunningGuy();*/
 
-    mainMesh.rotate(v3(0,1,0), Math.PI);
+    mainMesh.rotate(v3(0,1,0), Math.PI/2);
     mainMesh.bakeCurrentTransformIntoVertices(true);
 
 
-    mainMesh.rotate(Vector3.Up(), 3*Math.PI/2);
+    /*mainMesh.rotate(Vector3.Up(), 3*Math.PI/2);
     mainMesh.scaling.scaleInPlace(RunningGuy.DEFAULT_SCALE_FACTOR);
     mainMesh.position=v3(0, 0, -2*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS);
 
@@ -60,17 +62,25 @@ function onDudeMeshLoaded(result: ISceneLoaderAsyncResult): void {
     let dudes: RunningGuy[]=[mainDude];
 
     for(let i=1; i < 5; i++) {
-        dudes[i]=new RunningGuy(mainMesh.clone(i.toString()+"_runner", null));
+        dudes[i]=new RunningGuy(mainMesh.clone(i.toString()+"_runner"));
         dudes[i].mesh.position.z=mainMesh.position.z+i*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
+        dudes[i].mesh.skeleton=mainDude.mesh.skeleton.clone(i.toString()+"_runnerSkeleton");
     }
 
     let runRange: AnimationRange = result.skeletons[0].getAnimationRange("YBot_Run");
 
-    scene.beginAnimation(result.skeletons[0], runRange.from, runRange.to, true, 1);
+    let skeletonAnimation=scene.beginAnimation(dudes[1].mesh.skeleton, runRange.from, runRange.to, true, 1);
+
+    setTimeout(() => {
+        console.log(dudes[0].speed);
+        dudes[0].slowCharacter(0.01);
+        skeletonAnimation.speedRatio=(dudes[0].speed/RunningGuy.DEFAULT_SPEED);
+        console.log(dudes[0].speed);
+    }, 2000);
+
     scene.onBeforeRenderObservable.add(() => {
         dudes.forEach((dude: RunningGuy) => {
-            dude.mesh.movePOV(0, 0, RunningGuy.DEFAULT_SPEED);
+            dude.mesh.movePOV(0, 0, dude.speed);
         });
-    });
+    });*/
 }
-

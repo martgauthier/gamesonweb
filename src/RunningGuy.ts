@@ -1,5 +1,5 @@
 import dudeModel from "./assets/models/dummy3.babylon";
-import {AbstractMesh} from "@babylonjs/core";
+import {AbstractMesh, InstantiatedEntries} from "@babylonjs/core";
 
 export default class RunningGuy {
     static DEFAULT_SPEED: number=0.02;
@@ -8,10 +8,12 @@ export default class RunningGuy {
     static DEFAULT_SPACE_BETWEEN_RUNNERS=1.5;
     shouldAnimate: boolean=false;
 
-    mesh: AbstractMesh;
+    entries: InstantiatedEntries;
+    speed: number;
 
-    constructor(mesh: AbstractMesh) {
-        this.mesh=mesh;
+    constructor(entries: InstantiatedEntries) {
+        this.entries=entries;
+        this.speed=RunningGuy.DEFAULT_SPEED;
     }
 
     getShouldAnimate(): boolean {
@@ -21,5 +23,26 @@ export default class RunningGuy {
     setShouldAnimate(shouldAnimate: boolean): void {
         this.shouldAnimate=shouldAnimate;
         //TODO: enable or disable guy animation
+    }
+
+    /**
+     * Slows character.
+     * @param reduction should be positive if "substract", <1 if "multiply", >1 if "divide"
+     * @param mode operand of calculus
+     */
+    slowCharacter(reduction: number, mode: "substract" | "multiply" | "divide" = "substract"): void {
+        switch(mode) {
+            case "divide":
+                this.speed/=reduction;
+                break;
+            case "multiply":
+                this.speed*=reduction;
+                break;
+            default://substract
+                if(this.speed >= reduction) {
+                    this.speed-=reduction;
+                }
+                break;
+        }
     }
 }
