@@ -42,11 +42,35 @@
             align-items: center;
             justify-items: center;
         }
+
+        .key-explain-container {
+            margin: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            padding: 10px; 
+            background-color: #fcfcfc17; 
+            border-radius: 20px;
+        }
+
+        .key-explain {
+            padding: 0 20px;
+            font-size: 50px;
+            font-style: bold;
+            font-family: monospace;
+            color: white;
+        }
     </style>
 </head>
 
 <body>
 <canvas id="renderCanvas" touch-action="none"></canvas>
+<div class="key-explain-container">
+    <div class="key-explain">
+        Use left and right arrow to move
+    </div>
+</div>
 <button id="resetButton">Reset Position</button>
 
 <script src="bundle.js"></script>
