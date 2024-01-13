@@ -8,8 +8,9 @@ export default class Commentator {
     static DEFAULT_SCALE_FACTOR: number=1;
     static MODEL_SRC=commentatorModel;
     static DEFAULT_DISTANCE_TO_RUNNERS=3.5;
-    // static DEFAULT_SPACE_BETWEEN_RUNNERS=1.5; ca pourra être utile pour le dépalcement du commentator
+    static DEFAULT_SPACE_BETWEEN_RUNNERS=1.5;
     shouldAnimate: boolean=false;
+    positionX: number = 0; // Pour suivre la position du commenateur
 
     /**
      * Un élement 3D affiché à l'écran, c'est 3 choses:

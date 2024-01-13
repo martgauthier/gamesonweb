@@ -111,4 +111,26 @@ function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer):
     function resetModelPositions(): void {
         commentator.getMesh().position = v3(0 + Commentator.DEFAULT_DISTANCE_TO_RUNNERS, commentator.getMesh().position.y,0);
     }
+    
+    window.addEventListener("keydown", (event) => {
+        switch (event.key) {
+            case "ArrowLeft":
+                if (commentator.positionX < 2){
+                    commentator.positionX++;
+                    commentator.getMesh().movePOV(Commentator.DEFAULT_SPACE_BETWEEN_RUNNERS,0,0);
+                    break
+                }
+                break;
+            case "ArrowRight":
+                if (commentator.positionX > -2){
+                    commentator.positionX--;    
+                    commentator.getMesh().movePOV(-Commentator.DEFAULT_SPACE_BETWEEN_RUNNERS,0,0);
+                    break
+                }
+                break;
+        }
+    }); 
+
+
+
 };
