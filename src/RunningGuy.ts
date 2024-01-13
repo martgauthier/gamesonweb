@@ -51,6 +51,7 @@ export default class RunningGuy {
             this.walkAnimation=walkAnimation.start(true, 1, walkAnimation.from, walkAnimation.to);
             this.walkAnimation.setWeightForAllAnimatables(0);
             this.ratioBetweenRunAndWalkAnims=1;
+            this.runAnimation.speedRatio = 1.2;
         }
     }
 

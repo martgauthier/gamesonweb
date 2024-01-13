@@ -46,7 +46,6 @@ export default class Commentator {
     setShouldAnimate(shouldAnimate: boolean=true): void {
         this.shouldAnimate=shouldAnimate;
         if(shouldAnimate) {
-            console.log(this.entries.animationGroups);
             let failAnimation=this.entries.animationGroups[0];
             let runAnimation=this.entries.animationGroups[1];
 
