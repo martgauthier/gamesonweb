@@ -1,13 +1,14 @@
-import dudeModel from "./assets/models/runningGuy.glb";
+import commentatorModel from "./assets/models/commentator.glb";
 import {Animatable, AnimationGroup ,InstantiatedEntries, Mesh, Skeleton, Vector3} from "@babylonjs/core";
 import {v3} from "./utils/shortcuts";
 import {Scene} from "@babylonjs/core/scene";
 
-export default class RunningGuy {
+export default class Commentator {
     static DEFAULT_SPEED: number=0.02;
     static DEFAULT_SCALE_FACTOR: number=1;
-    static MODEL_SRC=dudeModel;
-    static DEFAULT_SPACE_BETWEEN_RUNNERS=1.5;
+    static MODEL_SRC=commentatorModel;
+    static DEFAULT_DISTANCE_TO_RUNNERS=3.5;
+    // static DEFAULT_SPACE_BETWEEN_RUNNERS=1.5; ca pourra être utile pour le dépalcement du commentator
     shouldAnimate: boolean=false;
 
     /**
@@ -25,14 +26,14 @@ export default class RunningGuy {
     entries: InstantiatedEntries;
     speed: number;
     scene: Scene;
-    walkAnimation: AnimationGroup;
+    failAnimation: AnimationGroup;
     runAnimation: AnimationGroup;
     ratioBetweenRunAndWalkAnims: number;
 
     constructor(entries: InstantiatedEntries, scene: Scene, shouldRun: boolean=true, shouldNotInitGoodProperties: boolean = false) {
         this.entries=entries;
         this.scene=scene;
-        this.speed=RunningGuy.DEFAULT_SPEED;
+        this.speed=Commentator.DEFAULT_SPEED;
         this.setShouldAnimate(shouldRun);
         if(!shouldNotInitGoodProperties) this.setGoodInitProperties();
     }
@@ -44,12 +45,13 @@ export default class RunningGuy {
     setShouldAnimate(shouldAnimate: boolean=true): void {
         this.shouldAnimate=shouldAnimate;
         if(shouldAnimate) {
-            let walkAnimation=this.entries.animationGroups[1];
-            let runAnimation=this.entries.animationGroups[4];
+            console.log(this.entries.animationGroups);
+            let failAnimation=this.entries.animationGroups[0];
+            let runAnimation=this.entries.animationGroups[1];
 
             this.runAnimation=runAnimation.start(true, 1, runAnimation.from, runAnimation.to);
-            this.walkAnimation=walkAnimation.start(true, 1, walkAnimation.from, walkAnimation.to);
-            this.walkAnimation.setWeightForAllAnimatables(0);
+            this.failAnimation=failAnimation.start(true, 1, failAnimation.from, failAnimation.to);
+            this.failAnimation.setWeightForAllAnimatables(0);
             this.ratioBetweenRunAndWalkAnims=1;
         }
     }
@@ -76,7 +78,7 @@ export default class RunningGuy {
                 this.speed*=modifier;
                 break;
             case "reset":
-                this.speed = RunningGuy.DEFAULT_SPEED; // Pour reset sa vitese avec dudes[0].changeAnimSpeed(0, "reset");
+                this.speed = Commentator.DEFAULT_SPEED; // Pour reset sa vitese avec dudes[0].changeAnimSpeed(0, "reset");
                 break;
             default://substract
                 if(this.speed >= modifier) {
@@ -87,10 +89,10 @@ export default class RunningGuy {
 
         if(this.shouldAnimate) {
             if(typeof animationToUpdate !== "undefined") {
-                animationToUpdate.speedRatio=this.speed/RunningGuy.DEFAULT_SPEED;
+                animationToUpdate.speedRatio=this.speed/Commentator.DEFAULT_SPEED;
             }
             else {
-                this.runAnimation.speedRatio=this.speed/RunningGuy.DEFAULT_SPEED;
+                this.runAnimation.speedRatio=this.speed/Commentator.DEFAULT_SPEED;
             }
         }
     }
@@ -100,6 +102,6 @@ export default class RunningGuy {
         this.getMesh().rotate(v3(0,1,0), Math.PI);
         this.getMesh().bakeCurrentTransformIntoVertices(true);//Cela permet de 1. définir la BONNE direction "avant" 2. de l'écrire pour tjr dans le personnage
 
-        this.getMesh().rotate(Vector3.Up(), 3*Math.PI/2);//après avoir fixé la direction Avant, on remet le bonhomme dans le sens initial qu'on voulait
+        this.getMesh().rotate(Vector3.Up(), Math.PI/2);//après avoir fixé la direction Avant, on remet le bonhomme dans le sens initial qu'on voulait
     }
 }

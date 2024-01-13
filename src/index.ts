@@ -5,6 +5,8 @@ import {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight';
 
 import "babylonjs-loaders";
 
+import "@babylonjs/loaders/glTF"
+
 import {v3} from "./utils/shortcuts";
 
 import {startEngine, startScene} from "./utils/sceneutilities";
@@ -19,6 +21,7 @@ import {
 } from "@babylonjs/core";
 
 import RunningGuy from "./RunningGuy";
+import Commentator from './Commentator';
 
 
 Animation.AllowMatricesInterpolation = true;//permet de fluidifier les animations. Si false, le personnage ne suivrait QUE les clés de mouvement, sans fluidité entre les clés
@@ -26,10 +29,15 @@ Animation.AllowMatricesInterpolation = true;//permet de fluidifier les animation
 const [canvas, engine] = startEngine();
 let scene = startScene(engine);
 
-let univCamera = new UniversalCamera("univCam", v3(8, 4, 6));
-univCamera.target=Vector3.Zero();
+/**
+ *  let univCamera = new UniversalCamera("univCam", v3(8, 4, 6));
+ * univCamera.target=Vector3.Zero();
+ */
 
-if(D) univCamera.attachControl(true);//can move cam only if debugging mode
+let followCamera = new UniversalCamera("followCam", v3(10, 4, -10), scene);
+
+
+if(D) followCamera.attachControl(true);//can move cam only if debugging mode
 
 let hemiLight = new HemisphericLight("hemiLight", v3(0, 1, 0));
 
@@ -59,6 +67,8 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
         dudes[i].getMesh().position.z=mainMesh.position.z+i*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
     }
 
+
+
     setTimeout(() => {
         dudes[0].changeAnimSpeed(2, "divide");
     }, 2000);
@@ -77,6 +87,28 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
 
     dudes.forEach((dude: RunningGuy) => {
         dude.getMesh().position = v3(0, dude.getMesh().position.y,dude.getMesh().position.z);
+        dudes[0].changeAnimSpeed(0, "reset");
     });
     }
 }
+
+SceneLoader.LoadAssetContainerAsync("", Commentator.MODEL_SRC).then((container) => onCommentatorMeshLoaded  (container));
+
+function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer): void {
+    let mainEntries = commentatorModelDataContainer.instantiateModelsToScene();
+    let mainMesh = mainEntries.rootNodes[0] as Mesh;
+    let commentator:Commentator = new Commentator(mainEntries, scene);
+
+    commentator.getMesh().position.x = 3.5; 
+
+    scene.onBeforeRenderObservable.add(() => {//avant chaque rendu de frame (donc avant chaque frame)
+        followCamera.position = commentator.getMesh().position.add(new Vector3(-10, 10, 0));
+        followCamera.setTarget(commentator.getMesh().position);
+        commentator.getMesh().movePOV(0, 0, -commentator.speed);
+    });
+    const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
+
+    function resetModelPositions(): void {
+        commentator.getMesh().position = v3(0 + Commentator.DEFAULT_DISTANCE_TO_RUNNERS, commentator.getMesh().position.y,0);
+    }
+};
