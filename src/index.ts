@@ -110,6 +110,7 @@ function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer):
 
     function resetModelPositions(): void {
         commentator.getMesh().position = v3(0 + Commentator.DEFAULT_DISTANCE_TO_RUNNERS, commentator.getMesh().position.y,0);
+        commentator.positionX = 0;
     }
     
     window.addEventListener("keydown", (event) => {
