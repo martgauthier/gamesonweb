@@ -13,6 +13,7 @@
             padding: 0;
             margin: 0;
             overflow: hidden;
+            position: relative;
         }
 
         #renderCanvas {
@@ -21,11 +22,56 @@
             display: block;
             font-size: 0;
         }
+
+        #resetButton {
+            all: unset;
+            height: 50px;
+            width: auto;
+            padding: 0 25px;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            bottom: 10px; 
+            left: 50%;
+            z-index: 2; 
+            font-size: 20px;
+            font-weight: 700;
+            font-family: monospace;
+            border-radius: 20px;
+            background-color: #31284b;
+            color: white;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .key-explain-container {
+            margin: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 3;
+            padding: 10px; 
+            background-color: #fcfcfc17; 
+            border-radius: 20px;
+        }
+
+        .key-explain {
+            padding: 0 20px;
+            font-size: 50px;
+            font-style: bold;
+            font-family: monospace;
+            color: white;
+        }
     </style>
 </head>
 
 <body>
 <canvas id="renderCanvas" touch-action="none"></canvas>
+<div class="key-explain-container">
+    <div class="key-explain">
+        Use left and right arrow to move
+    </div>
+</div>
+<button id="resetButton">Reset Position</button>
 
 <script src="bundle.js"></script>
 </body>

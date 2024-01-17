@@ -1,56 +1,134 @@
-import { FreeCamera } from '@babylonjs/core/Cameras/freeCamera';
-import { Engine } from '@babylonjs/core/Engines/engine';
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
-import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
-import { CreateSphere } from '@babylonjs/core/Meshes/Builders/sphereBuilder';
-import { Scene } from '@babylonjs/core/scene';
+const D: boolean=true;//D for debugger, CHANGE IF YOU WANT TO DEBUG
+const setCamPositionBehindCommentator:boolean = true;//change if you want to change default camera position
 
-import { GridMaterial } from '@babylonjs/materials/grid/gridMaterial';
 
-// Get the canvas element from the DOM.
-const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
+import {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight';
 
-// Associate a Babylon Engine to it.
-const engine = new Engine(canvas);
+import "babylonjs-loaders";
 
-// Create our first scene.
-var scene = new Scene(engine);
+import "@babylonjs/loaders/glTF"
 
-// This creates and positions a free camera (non-mesh)
-var camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
+import {v3} from "./utils/shortcuts";
 
-// This targets the camera to scene origin
-camera.setTarget(Vector3.Zero());
+import {startEngine, startScene} from "./utils/sceneutilities";
+import {
+    Animation,
+    AssetContainer, KeyboardEventTypes,
+    Mesh,
+    MeshBuilder,
+    SceneLoader,
+    UniversalCamera,
+} from "@babylonjs/core";
 
-// This attaches the camera to the canvas
-camera.attachControl(canvas, true);
+import RunningGuy from "./RunningGuy";
+import Commentator from './Commentator';
 
-// This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
 
-// Default intensity is 1. Let's dim the light a small amount
-light.intensity = 0.7;
+Animation.AllowMatricesInterpolation = true;//permet de fluidifier les animations. Si false, le personnage ne suivrait QUE les clés de mouvement, sans fluidité entre les clés
 
-// Create a grid material
-var material = new GridMaterial("grid", scene);
+const [canvas, engine] = startEngine();
+let scene = startScene(engine);
 
-// Our built-in 'sphere' shape.
-var sphere = CreateSphere('sphere1', { segments: 16, diameter: 2 }, scene);
+/**
+ *  let univCamera = new UniversalCamera("univCam", v3(8, 4, 6));
+ * univCamera.target=Vector3.Zero();
+ */
 
-// Move the sphere upward 1/2 its height
-sphere.position.y = 2;
+let followCamera = new UniversalCamera("followCam", v3(10, 4, -10), scene);
 
-// Affect a material
-sphere.material = material;
 
-// Our built-in 'ground' shape.
-var ground = CreateGround('ground1', { width: 6, height: 6, subdivisions: 2 }, scene);
+if(D) followCamera.attachControl(true);//can move cam only if debugging mode
 
-// Affect a material
-ground.material = material;
+let hemiLight = new HemisphericLight("hemiLight", v3(0, 1, 0));
 
-// Render every frame
-engine.runRenderLoop(() => {
-    scene.render();
+let ground = MeshBuilder.CreateGround("ground", {
+    width: 60,
+    height: 8
 });
+
+SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
+
+
+function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
+    let mainEntries = dudeModelDataContainer.instantiateModelsToScene();
+    let mainMesh = mainEntries.rootNodes[0] as Mesh;
+
+    let dudes: RunningGuy[]=[new RunningGuy(mainEntries, scene)];
+
+    mainMesh.position.z=-2*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
+
+    for(let i=1; i < 5; i++) {
+        dudes[i]=new RunningGuy(dudeModelDataContainer.instantiateModelsToScene(), scene);
+
+        dudes[i].getMesh().position.z=mainMesh.position.z+i*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
+    }
+
+
+
+    setTimeout(() => {
+        dudes[0].changeAnimSpeed(2, "divide");
+    }, 2000);
+
+
+    scene.onBeforeRenderObservable.add(() => {//avant chaque rendu de frame (donc avant chaque frame)
+        dudes.forEach((dude: RunningGuy) => {
+            dude.getMesh().movePOV(0, 0, dude.speed);//la fonction movePOV déplace le personnage PAR RAPPORT à son point de vue (voir doc de la fonction)
+        });
+    });
+
+
+    const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
+
+    function resetModelPositions(): void {
+
+    dudes.forEach((dude: RunningGuy) => {
+        dude.getMesh().position = v3(0, dude.getMesh().position.y,dude.getMesh().position.z);
+        dudes[0].changeAnimSpeed(0, "reset");
+    });
+    }
+}
+
+SceneLoader.LoadAssetContainerAsync("", Commentator.MODEL_SRC).then((container) => onCommentatorMeshLoaded  (container));
+
+function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer): void {
+    let mainEntries = commentatorModelDataContainer.instantiateModelsToScene();
+    let commentator:Commentator = new Commentator(mainEntries, scene);
+
+    commentator.getMesh().position.x = 3.5; 
+
+    scene.onBeforeRenderObservable.add(() => {
+        if(setCamPositionBehindCommentator) {
+            followCamera.position = commentator.getMesh().position.add(v3(10, 4, 4));
+        }
+        else {
+            followCamera.position = commentator.getMesh().position.add(v3(-10, 10, 0));
+        }
+        followCamera.setTarget(commentator.getMesh().position);
+        commentator.getMesh().movePOV(0, 0, -commentator.speed);
+    });
+    const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
+
+    function resetModelPositions(): void {
+        commentator.getMesh().position = v3(Commentator.DEFAULT_DISTANCE_TO_RUNNERS, commentator.getMesh().position.y,0);
+        commentator.positionZ = 0;
+    }
+
+    scene.onKeyboardObservable.add((e) => {
+       if(e.type === KeyboardEventTypes.KEYDOWN) {
+           if(e.event.key === "ArrowLeft") {
+               if (setCamPositionBehindCommentator) {
+                   commentator.moveToLeftPOV();
+               } else {
+                   commentator.moveToRightPOV();
+               }
+           }
+           else if (e.event.key === "ArrowRight") {
+               if (setCamPositionBehindCommentator) {
+                   commentator.moveToRightPOV();
+               } else {
+                   commentator.moveToLeftPOV();
+               }
+           }
+       }
+    });
+}
