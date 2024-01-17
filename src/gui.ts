@@ -1,6 +1,10 @@
-import {setControlsAttachment, controlsAreAttached} from "./index";
+import {
+    setControlsAttachment,
+    controlsAreAttached,
+    killRunnerInFrontOfCommentator
+} from "./index";
 
-const wordsToType: string[]=["Interview", "Question", "Paketa"];
+const wordsToType: string[]=["Interview", "Question", "Paketa", "La gadji c'est un Paketa ?", "Nelson MONFORT"];
 
 function getRandomWordToType(): string {
     return wordsToType[Math.floor(Math.random() * wordsToType.length)];//https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
@@ -14,25 +18,25 @@ window.onload=() => {
 
     const renderCanvas=document.getElementById("renderCanvas");
 
-    let resetDisplayAfterWrongAnswerTimeout: NodeJS.Timeout;
-
     commentaryFormEl.addEventListener("submit", (e) => {
         e.preventDefault();//disables reloading of iframe when submitting answer
         if(textInputEl.value===commentaryToTypeEl.textContent) {//good answer
+            textInputEl.style.background="green";
+            textInputEl.disabled=true;
+
             setTimeout(() => {
                 toggleGui();
                 textInputEl.style.background="";
                 textInputEl.value="";
                 textInputEl.disabled=false;
+                killRunnerInFrontOfCommentator();
             }, 800);
-            textInputEl.style.background="green";
-            textInputEl.disabled=true;
-            clearTimeout(resetDisplayAfterWrongAnswerTimeout);
         }
         else {//wrong answer
             textInputEl.style.background="red";
             textInputEl.disabled=true;
-            resetDisplayAfterWrongAnswerTimeout=setTimeout(() => {
+
+            setTimeout(() => {
                 textInputEl.style.background="";
                 textInputEl.disabled=false;
                 textInputEl.focus();
@@ -46,7 +50,7 @@ window.onload=() => {
 
     function toggleGui() {
         guiObjectEl.style.display = (guiObjectEl.style.display === 'none') ? 'flex' : 'none';
-        console.log(guiObjectEl.style.display)
+
         if(guiObjectEl.style.display === "flex") {
             textInputEl.focus();
             commentaryToTypeEl.textContent=getRandomWordToType();

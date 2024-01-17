@@ -1,5 +1,5 @@
 const D: boolean=true;//D for debugger, CHANGE IF YOU WANT TO DEBUG
-const setCamPositionBehindCommentator:boolean = true;//change if you want to change default camera position
+const setCamPositionBehindCommentator:boolean = false;//change if you want to change default camera position
 
 
 import {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight';
@@ -53,6 +53,10 @@ let keysPressed: {[key: string]: boolean} = {
 
 let controlsAreAttached: boolean=true;
 
+let dudes: RunningGuy[];
+
+let commentator: Commentator;
+
 SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
 
 
@@ -60,7 +64,7 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
     let mainEntries = dudeModelDataContainer.instantiateModelsToScene();
     let mainMesh = mainEntries.rootNodes[0] as Mesh;
 
-    let dudes: RunningGuy[]=[new RunningGuy(mainEntries, scene)];
+    dudes=[new RunningGuy(mainEntries, scene)];
 
     mainMesh.position.z=-2*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
 
@@ -69,13 +73,6 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
 
         dudes[i].getMesh().position.z=mainMesh.position.z+i*RunningGuy.DEFAULT_SPACE_BETWEEN_RUNNERS;
     }
-
-
-
-    setTimeout(() => {
-        dudes[0].changeAnimSpeed(2, "divide");
-    }, 2000);
-
 
     scene.onBeforeRenderObservable.add(() => {//avant chaque rendu de frame (donc avant chaque frame)
         dudes.forEach((dude: RunningGuy) => {
@@ -87,11 +84,10 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
     const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
 
     function resetModelPositions(): void {
-
-    dudes.forEach((dude: RunningGuy) => {
-        dude.getMesh().position = v3(0, dude.getMesh().position.y,dude.getMesh().position.z);
-        dudes[0].changeAnimSpeed(0, "reset");
-    });
+        dudes.forEach((dude: RunningGuy) => {
+            dude.getMesh().position = v3(0, dude.getMesh().position.y,dude.getMesh().position.z);
+            dude.changeAnimSpeed(0, "reset");
+        });
     }
 }
 
@@ -99,7 +95,7 @@ SceneLoader.LoadAssetContainerAsync("", Commentator.MODEL_SRC).then((container) 
 
 function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer): void {
     let mainEntries = commentatorModelDataContainer.instantiateModelsToScene();
-    let commentator:Commentator = new Commentator(mainEntries, scene);
+    commentator = new Commentator(mainEntries, scene);
 
     commentator.getMesh().position.x = 3.5; 
 
@@ -172,4 +168,13 @@ function setControlsAttachment(shouldAttachControls: boolean): void {
     }
 }
 
-export {setControlsAttachment, controlsAreAttached};
+function killRunnerInFrontOfCommentator(): void {
+    console.log("Killed runner ID: ", getRunnerIdInFrontOfCommentator());
+    dudes[getRunnerIdInFrontOfCommentator()].changeAnimSpeed(4, "divide");
+}
+
+function getRunnerIdInFrontOfCommentator(): number {
+    return commentator.positionZ+2;
+}
+
+export {setControlsAttachment, controlsAreAttached, killRunnerInFrontOfCommentator};
