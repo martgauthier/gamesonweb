@@ -1,8 +1,7 @@
 function openOrCloseGui() {
     let guiObjectEl = document.getElementById('guiIframe') as HTMLIFrameElement;
-    let gui = guiObjectEl.contentWindow.document.getElementById("gui");
-    console.log(gui);
-    gui.style.display = gui.style.display === 'none' ? 'flex' : 'none';
+    guiObjectEl.style.display = (guiObjectEl.style.display === 'none') ? 'flex' : 'none';
+    console.log(guiObjectEl.style.display)
 }
 
 document.addEventListener('keydown', function(event) {

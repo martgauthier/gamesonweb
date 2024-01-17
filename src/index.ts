@@ -46,6 +46,11 @@ let ground = MeshBuilder.CreateGround("ground", {
     height: 8
 });
 
+let keysPressed: {[key: string]: boolean} = {
+    left: false,
+    right: false
+};
+
 SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
 
 
@@ -105,6 +110,21 @@ function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer):
         }
         followCamera.setTarget(commentator.getMesh().position);
         commentator.getMesh().movePOV(0, 0, -commentator.speed);
+
+        if(keysPressed.left) {
+            if (setCamPositionBehindCommentator) {
+                commentator.moveToLeftPOV();
+            } else {
+                commentator.moveToRightPOV();
+            }
+        }
+        if(keysPressed.right) {
+            if (setCamPositionBehindCommentator) {
+                commentator.moveToRightPOV();
+            } else {
+                commentator.moveToLeftPOV();
+            }
+        }
     });
     const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
 
@@ -116,18 +136,20 @@ function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer):
     scene.onKeyboardObservable.add((e) => {
        if(e.type === KeyboardEventTypes.KEYDOWN) {
            if(e.event.key === "ArrowLeft") {
-               if (setCamPositionBehindCommentator) {
-                   commentator.moveToLeftPOV();
-               } else {
-                   commentator.moveToRightPOV();
-               }
+               keysPressed.left=true;
+               keysPressed.right=false;
            }
            else if (e.event.key === "ArrowRight") {
-               if (setCamPositionBehindCommentator) {
-                   commentator.moveToRightPOV();
-               } else {
-                   commentator.moveToLeftPOV();
-               }
+               keysPressed.right=true;
+               keysPressed.left=false;
+           }
+       }
+       else if(e.type === KeyboardEventTypes.KEYUP) {
+           if(e.event.key === "ArrowLeft") {
+               keysPressed.left=false;
+           }
+           else if(e.event.key === "ArrowRight") {
+               keysPressed.right=false;
            }
        }
     });

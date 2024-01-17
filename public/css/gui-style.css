@@ -12,7 +12,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
   }
 
 .gui-container{
@@ -62,6 +61,10 @@
     padding: 10px;
     font-size: 25px;
     font-weight: 400;
+}
+
+#gui {
+    display: flex;
 }
 
 
