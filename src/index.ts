@@ -51,6 +51,8 @@ let keysPressed: {[key: string]: boolean} = {
     right: false
 };
 
+let controlsAreAttached: boolean=true;
+
 SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
 
 
@@ -96,6 +98,10 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
 SceneLoader.LoadAssetContainerAsync("", Commentator.MODEL_SRC).then((container) => onCommentatorMeshLoaded  (container));
 
 function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer): void {
+    setTimeout(() => {
+        alert("controls are now detached. Remove 'setTimeout' in 'onCommentatorMeshLoaded' to disable");
+        setControlsAttachment(false);
+    }, 5000);
     let mainEntries = commentatorModelDataContainer.instantiateModelsToScene();
     let commentator:Commentator = new Commentator(mainEntries, scene);
 
@@ -134,23 +140,38 @@ function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer):
     }
 
     scene.onKeyboardObservable.add((e) => {
-       if(e.type === KeyboardEventTypes.KEYDOWN) {
-           if(e.event.key === "ArrowLeft") {
-               keysPressed.left=true;
-               keysPressed.right=false;
-           }
-           else if (e.event.key === "ArrowRight") {
-               keysPressed.right=true;
-               keysPressed.left=false;
-           }
-       }
-       else if(e.type === KeyboardEventTypes.KEYUP) {
-           if(e.event.key === "ArrowLeft") {
-               keysPressed.left=false;
-           }
-           else if(e.event.key === "ArrowRight") {
-               keysPressed.right=false;
-           }
-       }
+        if(controlsAreAttached) {
+            if(e.type === KeyboardEventTypes.KEYDOWN) {
+                if(e.event.key === "ArrowLeft") {
+                    keysPressed.left=true;
+                    keysPressed.right=false;
+                }
+                else if (e.event.key === "ArrowRight") {
+                    keysPressed.right=true;
+                    keysPressed.left=false;
+                }
+            }
+            else if(e.type === KeyboardEventTypes.KEYUP) {
+                if(e.event.key === "ArrowLeft") {
+                    keysPressed.left=false;
+                }
+                else if(e.event.key === "ArrowRight") {
+                    keysPressed.right=false;
+                }
+            }
+        }
     });
+}
+
+function setControlsAttachment(shouldAttachControls: boolean): void {
+    controlsAreAttached=shouldAttachControls;
+    if(!shouldAttachControls) {
+        followCamera.detachControl();
+        for(const property in keysPressed) {
+            keysPressed[property]=false;
+        }
+    }
+    else {
+        followCamera.attachControl(true);
+    }
 }
