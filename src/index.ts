@@ -98,10 +98,6 @@ function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
 SceneLoader.LoadAssetContainerAsync("", Commentator.MODEL_SRC).then((container) => onCommentatorMeshLoaded  (container));
 
 function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer): void {
-    setTimeout(() => {
-        alert("controls are now detached. Remove 'setTimeout' in 'onCommentatorMeshLoaded' to disable");
-        setControlsAttachment(false);
-    }, 5000);
     let mainEntries = commentatorModelDataContainer.instantiateModelsToScene();
     let commentator:Commentator = new Commentator(mainEntries, scene);
 
