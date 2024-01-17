@@ -14,11 +14,4 @@ module.exports = {
             },
         ],
     },
-    plugins: [
-        new CopyPlugin({
-            patterns: [
-                {from: "src/assets/", to: "public/assets/"}
-            ]
-        })
-    ]
 };
