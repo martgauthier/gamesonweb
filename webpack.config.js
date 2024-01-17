@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
     resolve: {
         extensions: [".ts", ".js"],
@@ -12,13 +14,10 @@ module.exports = {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
             },
+            {
+                test: /\.(glb|babylon)$/,
+                type: "asset/resource"
+            },
         ],
-    },
-    plugins: [
-        new CopyPlugin({
-            patterns: [
-                {from: "src/assets/", to: "public/assets/"}
-            ]
-        })
-    ]
+    }
 };
