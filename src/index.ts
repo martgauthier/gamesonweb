@@ -171,3 +171,5 @@ function setControlsAttachment(shouldAttachControls: boolean): void {
         followCamera.attachControl(true);
     }
 }
+
+export {setControlsAttachment, controlsAreAttached};
