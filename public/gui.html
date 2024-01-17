@@ -10,25 +10,12 @@
     </style>
 </head>
 <body>
-    <div id = "gui" class="gui-container">
+    <div id="gui" class="gui-container">
         <form>
             <h1>ÉCRIVEZ LES COMMENTAIRES DE NELSON</h1>
             <p>Bonjour, à tous !</p>
             <input type="text" placeholder="...">
         </form>
-    </div>      
-    <script>
-        function openOrCloseGui() {
-            var gui = document.getElementById('gui');
-            gui.style.display = gui.style.display === 'none' ? 'flex' : 'none';
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === '>' || event.key === '<') {
-                console.log('zebi');
-                openOrCloseGui();
-            }
-        });
-    </script>
+    </div>
 </body>
 </html>

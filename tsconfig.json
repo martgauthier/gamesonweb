@@ -5,8 +5,7 @@
     "moduleResolution": "node",
   },
   "include": [
-    "src",
-    "src/moduledeclaration.d.ts"
+    "src"
   ],
   "types": [
     "babylonjs",

@@ -1,5 +1,7 @@
 function openOrCloseGui() {
-    var gui = document.getElementById('gui');
+    let guiObjectEl = document.getElementById('guiIframe') as HTMLIFrameElement;
+    let gui = guiObjectEl.contentWindow.document.getElementById("gui");
+    console.log(gui);
     gui.style.display = gui.style.display === 'none' ? 'flex' : 'none';
 }
 

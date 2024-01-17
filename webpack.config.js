@@ -1,6 +1,7 @@
 const path = require("path");
 
 module.exports = {
+    entry: ["./src/index.ts", "./src/gui.ts"],
     resolve: {
         extensions: [".ts", ".js"],
     },
