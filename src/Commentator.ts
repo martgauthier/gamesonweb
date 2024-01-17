@@ -1,5 +1,5 @@
 import commentatorModel from "./assets/models/commentator.glb";
-import {Animatable, AnimationGroup ,InstantiatedEntries, Mesh, Skeleton, Vector3} from "@babylonjs/core";
+import {Animatable, AnimationGroup, InstantiatedEntries, Mesh, Observer, Skeleton, Vector3, Animation} from "@babylonjs/core";
 import {v3} from "./utils/shortcuts";
 import {Scene} from "@babylonjs/core/scene";
 
@@ -10,7 +10,7 @@ export default class Commentator {
     static DEFAULT_DISTANCE_TO_RUNNERS=3.5;
     static DEFAULT_SPACE_BETWEEN_RUNNERS=1.5;
     shouldAnimate: boolean=false;
-    positionX: number = 0; // Pour suivre la position du commenateur
+    positionZ: number = 0; // Pour suivre la position du commentateur
 
     /**
      * Un élement 3D affiché à l'écran, c'est 3 choses:
@@ -30,6 +30,7 @@ export default class Commentator {
     failAnimation: AnimationGroup;
     runAnimation: AnimationGroup;
     ratioBetweenRunAndWalkAnims: number;
+    isMoving: boolean=false;
 
     constructor(entries: InstantiatedEntries, scene: Scene, shouldRun: boolean=true, shouldNotInitGoodProperties: boolean = false) {
         this.entries=entries;
@@ -103,5 +104,50 @@ export default class Commentator {
         this.getMesh().bakeCurrentTransformIntoVertices(true);//Cela permet de 1. définir la BONNE direction "avant" 2. de l'écrire pour tjr dans le personnage
 
         this.getMesh().rotate(Vector3.Up(), Math.PI/2);//après avoir fixé la direction Avant, on remet le bonhomme dans le sens initial qu'on voulait
+    }
+
+    moveZSmoothly(zTarget: number): void {
+        const animFrameRate = 60; //per sec
+        const animDuration = 0.2; //secs
+        const nbFrames = animDuration * animFrameRate - 1;
+
+        const movingZAnimation = new Animation(this.getMesh().name, "position.z", animFrameRate, Animation.ANIMATIONTYPE_FLOAT);
+        const animKeys=[];
+
+        animKeys.push({
+            frame: 0,
+            value: this.getMesh().position.z
+        });//start position
+
+        animKeys.push({
+            frame: nbFrames,
+            value: zTarget
+        });//end position
+
+        movingZAnimation.setKeys(animKeys);
+
+        const movingZAnimationGroup = new AnimationGroup("movingZAnimGroup");
+        movingZAnimationGroup.addTargetedAnimation(movingZAnimation, this.getMesh());//cela précise que la mesh du commentateur est la cible de l'animation
+
+        movingZAnimationGroup.onAnimationGroupEndObservable.add(() => {
+            this.isMoving=false;//à la fin de l'animation
+        });
+
+        movingZAnimationGroup.play();
+        this.isMoving=true;
+    }
+
+    moveToRightPOV(): void {
+        if (this.positionZ < 2 && !this.isMoving){
+            this.positionZ+=1;
+            this.moveZSmoothly(this.positionZ*Commentator.DEFAULT_SPACE_BETWEEN_RUNNERS);
+        }
+    }
+
+    moveToLeftPOV(): void {
+        if (this.positionZ > -2 && !this.isMoving){
+            this.positionZ-=1;
+            this.moveZSmoothly(this.positionZ*Commentator.DEFAULT_SPACE_BETWEEN_RUNNERS);
+        }
     }
 }

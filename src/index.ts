@@ -1,4 +1,5 @@
 const D: boolean=true;//D for debugger, CHANGE IF YOU WANT TO DEBUG
+const setCamPositionBehindCommentator:boolean = true;//change if you want to change default camera position
 
 
 import {HemisphericLight} from '@babylonjs/core/Lights/hemisphericLight';
@@ -12,12 +13,11 @@ import {v3} from "./utils/shortcuts";
 import {startEngine, startScene} from "./utils/sceneutilities";
 import {
     Animation,
-    AssetContainer,
+    AssetContainer, KeyboardEventTypes,
     Mesh,
     MeshBuilder,
     SceneLoader,
     UniversalCamera,
-    Vector3
 } from "@babylonjs/core";
 
 import RunningGuy from "./RunningGuy";
@@ -50,10 +50,6 @@ SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) =
 
 
 function onDudeMeshLoaded(dudeModelDataContainer: AssetContainer): void {
-    //container.instantiateModelsToScene() instancie dans la scène le contenu du container, et renvoye les "entries" (voir "RunningGuy.entries") créés par l'instanciation.
-    //Puisque le dudeModelDataContainer contient les entries du modèle 3D du bonhomme,
-    //On peut considérer que "container.instantiateModelsToScene" renvoye UN CLONE du personnage
-
     let mainEntries = dudeModelDataContainer.instantiateModelsToScene();
     let mainMesh = mainEntries.rootNodes[0] as Mesh;
 
@@ -96,42 +92,43 @@ SceneLoader.LoadAssetContainerAsync("", Commentator.MODEL_SRC).then((container) 
 
 function onCommentatorMeshLoaded(commentatorModelDataContainer: AssetContainer): void {
     let mainEntries = commentatorModelDataContainer.instantiateModelsToScene();
-    let mainMesh = mainEntries.rootNodes[0] as Mesh;
     let commentator:Commentator = new Commentator(mainEntries, scene);
 
     commentator.getMesh().position.x = 3.5; 
 
-    scene.onBeforeRenderObservable.add(() => {//avant chaque rendu de frame (donc avant chaque frame)
-        followCamera.position = commentator.getMesh().position.add(new Vector3(-10, 10, 0));
+    scene.onBeforeRenderObservable.add(() => {
+        if(setCamPositionBehindCommentator) {
+            followCamera.position = commentator.getMesh().position.add(v3(10, 4, 4));
+        }
+        else {
+            followCamera.position = commentator.getMesh().position.add(v3(-10, 10, 0));
+        }
         followCamera.setTarget(commentator.getMesh().position);
         commentator.getMesh().movePOV(0, 0, -commentator.speed);
     });
     const resetButton = document.getElementById("resetButton"); resetButton.addEventListener("click", resetModelPositions);
 
     function resetModelPositions(): void {
-        commentator.getMesh().position = v3(0 + Commentator.DEFAULT_DISTANCE_TO_RUNNERS, commentator.getMesh().position.y,0);
-        commentator.positionX = 0;
+        commentator.getMesh().position = v3(Commentator.DEFAULT_DISTANCE_TO_RUNNERS, commentator.getMesh().position.y,0);
+        commentator.positionZ = 0;
     }
-    
-    window.addEventListener("keydown", (event) => {
-        switch (event.key) {
-            case "ArrowLeft":
-                if (commentator.positionX < 2){
-                    commentator.positionX++;
-                    commentator.getMesh().movePOV(Commentator.DEFAULT_SPACE_BETWEEN_RUNNERS,0,0);
-                    break
-                }
-                break;
-            case "ArrowRight":
-                if (commentator.positionX > -2){
-                    commentator.positionX--;    
-                    commentator.getMesh().movePOV(-Commentator.DEFAULT_SPACE_BETWEEN_RUNNERS,0,0);
-                    break
-                }
-                break;
-        }
-    }); 
 
-
-
-};
+    scene.onKeyboardObservable.add((e) => {
+       if(e.type === KeyboardEventTypes.KEYDOWN) {
+           if(e.event.key === "ArrowLeft") {
+               if (setCamPositionBehindCommentator) {
+                   commentator.moveToLeftPOV();
+               } else {
+                   commentator.moveToRightPOV();
+               }
+           }
+           else if (e.event.key === "ArrowRight") {
+               if (setCamPositionBehindCommentator) {
+                   commentator.moveToRightPOV();
+               } else {
+                   commentator.moveToLeftPOV();
+               }
+           }
+       }
+    });
+}
