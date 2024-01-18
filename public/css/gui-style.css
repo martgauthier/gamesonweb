@@ -22,7 +22,7 @@
     position: relative;
     width: 800px;
     height: 165px;
-    background: rgba(75, 75, 75, 0.473);
+    background: #31284baa;
     padding: 8px 32px 28px;
     overflow: hidden;
     border-radius: 25px;
@@ -40,12 +40,14 @@
 }
 
 .gui-container input{
+  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.3);
   border-radius: 20px;
-  background-color: rgba(75, 75, 75, 0.329);
+  background-color: #31284baa;
   width: 100%;
   font-size: 20px;
   font-weight: 500;
   padding-left: 20px;
+  color: #fff;
 }
 
 .gui-container input::placeholder{

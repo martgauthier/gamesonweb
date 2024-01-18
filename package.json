@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babylonjs/loaders": "^6.37.1",
+    "@babylonjs/loaders": "^6.38.1",
     "copy-webpack-plugin": "^11.0.0",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
@@ -23,6 +23,6 @@
     "@babylonjs/core": "^6.37.1",
     "@babylonjs/materials": "^6.37.1",
     "babylonjs": "^6.37.1",
-    "babylonjs-loaders": "^6.37.1"
+    "babylonjs-loaders": "^6.38.1"
   }
 }

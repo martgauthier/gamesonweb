@@ -4,7 +4,7 @@ import {
     killRunnerInFrontOfCommentator
 } from "./index";
 
-const wordsToType: string[]=["Interview", "Question", "Paketa", "La gadji c'est un Paketa ?", "Nelson MONFORT"];
+const wordsToType: string[]=["Interview", "Question", "Paketa", "La gadji c'est un Paketa ?", "Nelson MONFORT", "Alors ? ca va"];
 
 function getRandomWordToType(): string {
     return wordsToType[Math.floor(Math.random() * wordsToType.length)];//https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
