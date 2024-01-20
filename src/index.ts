@@ -22,7 +22,8 @@ import {
 
 import RunningGuy from "./RunningGuy";
 import Commentator from './Commentator';
-
+import Track from './track';
+ 
 
 Animation.AllowMatricesInterpolation = true;//permet de fluidifier les animations. Si false, le personnage ne suivrait QUE les clés de mouvement, sans fluidité entre les clés
 
@@ -56,6 +57,11 @@ let controlsAreAttached: boolean=true;
 let dudes: RunningGuy[];
 
 let commentator: Commentator;
+
+let track: Track;
+
+SceneLoader.LoadAssetContainerAsync("", Track.MODEL_SRC);
+
 
 SceneLoader.LoadAssetContainerAsync("", RunningGuy.MODEL_SRC).then((container) => onDudeMeshLoaded(container));
 
